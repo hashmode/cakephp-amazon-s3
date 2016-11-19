@@ -1,0 +1,14 @@
+{
+    "name": "hashmode/cakephp-amazon-s3",
+    "description": "Amazon s3 plugin for Cakephp 3.x",
+    "type": "cakephp-plugin",
+    "require": {
+        "cakephp/cakephp": "~3.0",
+        "aws/aws-sdk-php": "~3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "CakephpAmazonS3\\": "src"
+        }
+    }
+}
