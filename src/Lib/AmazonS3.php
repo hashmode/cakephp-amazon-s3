@@ -115,24 +115,19 @@ class AmazonS3
     }
 
     /**
-     * @param string $localFile - full path to file to be uploaded
+     * @param string $sourceFile - full path to file to be uploaded
      * @param string $remoteFile - file "path" in s3 - relative the bucket name (without starting slash)
      * @param string $permission
      * @param array $headers - all the rest options by
      *         @link http://docs.aws.amazon.com/aws-sdk-php/v3/api/api-s3-2006-03-01.html#putobject
      * @return boolean
      */
-    public function putObject($localFile, $remoteFile, $permission = null, $headers = [])
+    public function putObject($sourceFile, $remoteFile, $permission = null, $headers = [])
     {
-        $localFile = trim($localFile);
-        if ($localFile != '' && !file_exists($localFile)) {
-            return false;
-        }
-        
         $args = [
             'Bucket' => $this->bucket,
             'Key' => $remoteFile,
-            'Body' => $localFile == '' ? '' : fopen($localFile, 'r'),
+            'Body' => $sourceFile == '' ? '' : file_get_contents($sourceFile),
             'ACL' => $this->getPermission($permission)
         ];
 
@@ -186,14 +181,19 @@ class AmazonS3
     }
 
     
-    public function getObjectUrl($path, $time = '+2 minutes')
+    /**
+     * @param string $path
+     * @param string $time
+     * @return string|boolean
+     */
+    public function getObjectUrl($path, $expires = '+2 minutes')
     {
         $cmd = $this->s3Client->getCommand('GetObject', [
             'Bucket' => $this->bucket,
             'Key'    => $path
         ]);
         
-        $request = $this->s3Client->createPresignedRequest($cmd, $time);
+        $request = $this->s3Client->createPresignedRequest($cmd, $expires);
         
         try {
             // Get the actual presigned-url
